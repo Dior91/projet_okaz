@@ -17,6 +17,12 @@ function redirect()
     exit;
 }
 
+function redirection($page)
+{
+    header("Location:". $page);
+    exit;
+}
+
 // Cette fonction vérifie l'ID en query string et nous retourne cet ID
 function checkQueryId()
 {

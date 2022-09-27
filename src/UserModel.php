@@ -39,7 +39,7 @@ class UserModel extends MainModel
     /**
      * Méthode pour enregistrer un utilisateur
      */
-    public function setupUser()
+    public function signupUser()
     {
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $data = [
@@ -82,7 +82,7 @@ class UserModel extends MainModel
             $password = $_POST["password_signup"];
             $confirm = $_POST["confirm"];
 
-            $query = $this->pdo->query("SELECT * FROM `dda_users` WHERE email = '$email'"); 
+            $query = $this->pdo->query("SELECT * FROM `dda_users` WHERE email = '$email'");
             $query->setFetchMode(PDO::FETCH_CLASS, "User");
             $user = $query->fetch();
 
@@ -95,13 +95,13 @@ class UserModel extends MainModel
                 $data["errorEmail"] = "Merci de remplir un email valide";
             }
 
-            if (!filter_var($telephone, FILTER_VALIDATE_FLOAT)) {
+            if (!empty($telephone) && !filter_var($telephone, FILTER_VALIDATE_FLOAT)) {
                 $data["errorTelephone"] = "Merci de remplir un numéro de téléphone valide";
             }
             if (!filter_var($postal_code, FILTER_VALIDATE_FLOAT)) {
                 $data["errorPostal_code"] = "Merci de remplir un code postal valide";
             }
-   
+
 
             if ($password !== $confirm) {
                 $data["errorConfirm"] = "Les mots de passe ne correspondent pas";
@@ -144,8 +144,6 @@ class UserModel extends MainModel
                 ":password" => $password,
             ]);
 
-            // if ($success) => if ($success === true)
-            // if (!$success) => if ($success === false)
             if ($success) {
                 $this->redirect("login.php?register=successful");
             }
@@ -183,8 +181,7 @@ class UserModel extends MainModel
                     "id" => $user->getId(),
                     "role" => $user->getRole(),
                     "firstname" => $user->getFirstname(),
-                    "lastname" => $user->getLastname(),
-                    "orderComplete" => ""
+                    "lastname" => $user->getLastname()
                 ];
                 $this->redirect("shop.php");
             } else return $error;
@@ -217,7 +214,7 @@ class UserModel extends MainModel
                 "errorPostal_code" => "",
                 "errorPostal_codeEmpty" => "",
                 "errorEmptyField" => "",
-                
+
             ];
 
             // On stock chacun de nos inputs dans une variable
@@ -231,7 +228,7 @@ class UserModel extends MainModel
             if (!filter_var($postal_code, FILTER_VALIDATE_FLOAT)) {
                 $data["errorPostal_code"] = "Merci de remplir un code postal valide";
             }
-            if (!filter_var($telephone, FILTER_VALIDATE_FLOAT)) {
+            if (!empty($telephone) && !filter_var($telephone, FILTER_VALIDATE_FLOAT)) {
                 $data["errorTelephone"] = "Merci de remplir un numéro de téléphone valide";
             }
             if (empty($telephone)) {
@@ -240,7 +237,7 @@ class UserModel extends MainModel
             if (empty($postal_code)) {
                 $data["errorPostal_codeEmpty"] = "Merci de remplir votre code postal";
             }
-            if (empty($firstname) || empty($lastname) || empty($telephone) || empty($address) || empty($postal_code) || empty($city)){
+            if (empty($firstname) || empty($lastname) || empty($address) || empty($postal_code) || empty($city)) {
                 $data["errorEmptyField"] = "Merci de ne pas laisser de champ vide.";
             }
 
@@ -259,7 +256,7 @@ class UserModel extends MainModel
             $postal_code = filter_var($postal_code, FILTER_SANITIZE_NUMBER_INT);
             $telephone = filter_var($telephone, FILTER_SANITIZE_NUMBER_INT);
             $city = htmlspecialchars($city);
-    
+
 
             // On prépare notre requête SQL
             $query = $this->pdo->prepare("
@@ -289,92 +286,95 @@ class UserModel extends MainModel
                     "id" => $user["id"],
                     "role" => $user["role"],
                     "firstname" => $firstname,
-                    "lastname" => $lastname,
+                    "lastname" => $lastname
                 ];
-                $this->redirect("profile.php");
+                if ($_SERVER["HTTP_REFERER"] == "http://localhost/okaz/modify_profile.php?id=fromdelivery") {
+                    $this->redirect("delivery.php");
+                } else {
+                    $this->redirect("profile.php");
+                }
             }
         }
     }
     /*
     * Méthode pour modifier le mot de passe
     */
-   public function modifyPassword()
-   {
+    public function modifyPassword()
+    {
 
-    
-     if ($_SERVER["REQUEST_METHOD"] === "POST")
-     {
-        $data = [
-            "errorPassword" => "",
-            "errorConfirm" => "",
-        ];
 
-       $current = $_POST["current"];
-       $newPassword = $_POST["newPassword"];
-       $confirm = $_POST["confirm"];
- 
-       // Nous allons vérifier si le mdp $current correspond
-       // à celui présent en BDD
-       $user = $this->searchUser();
-       if(!password_verify($current, $user->getPassword())){
-            $data["errorPassword"] = "Le mot de passe n'est pas correct";
-       }
-       if($newPassword !== $confirm){
-            $data["errorConfirm"] = "Les mots de passe ne correspondent pas";
-       }
+        if ($_SERVER["REQUEST_METHOD"] === "POST") {
+            $data = [
+                "errorPassword" => "",
+                "errorConfirm" => "",
+            ];
 
-       if (!empty($data["errorPassword"]) || !empty($data["errorConfirm"])){
-            return $data;
-       }
+            $current = $_POST["current"];
+            $newPassword = $_POST["newPassword"];
+            $confirm = $_POST["confirm"];
 
-       if (password_verify($current, $user->getPassword()) && $newPassword === $confirm)
-       {
-         $newPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-         $query = $this->pdo->prepare("UPDATE dda_users SET password = :password");
-         $success = $query->execute([":password" => $newPassword]);
- 
-         if ($success) $this->redirect("profile.php");
-       }
-    //    dd("Erreur dans la logique");
-     }
-   }
+            // Nous allons vérifier si le mdp $current correspond
+            // à celui présent en BDD
+            $user = $this->searchUser();
+            if (!password_verify($current, $user->getPassword())) {
+                $data["errorPassword"] = "Le mot de passe n'est pas correct";
+            }
+            if ($newPassword !== $confirm) {
+                $data["errorConfirm"] = "Les mots de passe ne correspondent pas";
+            }
 
-   public function registerContactForm(){
+            if (!empty($data["errorPassword"]) || !empty($data["errorConfirm"])) {
+                return $data;
+            }
 
-    if ($_SERVER["REQUEST_METHOD"] === "POST"){
+            if (password_verify($current, $user->getPassword()) && $newPassword === $confirm) {
+                $newPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+                $query = $this->pdo->prepare("UPDATE dda_users SET password = :password");
+                $success = $query->execute([":password" => $newPassword]);
 
-        $error = [
-            "errorEmail" => "",
-            "successfulRegister" => "",
-        ];
-        
-        $name = $_POST["name"];
-        $email = $_POST["email"];
-        $subject = $_POST["subject"];
-        $message = $_POST["message"];
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $error["errorEmail"] = "Merci de remplir un email valide";
-            return $error;
-        }
-
-        $name = htmlspecialchars($name);
-        $subject = htmlspecialchars($subject);
-        $message = htmlspecialchars($message);
-        $email = filter_var($email, FILTER_SANITIZE_EMAIL);
-
-        $query = $this->pdo->prepare("INSERT INTO dda_contact (name, email, subject, message) VALUES (:name, :email, :subject, :message)");
-        $success = $query->execute([
-            ":name" => $name,
-            ":email" => $email,
-            ":subject" => $subject,
-            ":message" => $message,
-        ]);
-
-        if ($success) {
-            $error["successfulRegister"] = "Votre message a bien été envoyé";
-            return $error;
+                if ($success) $this->redirect("profile.php");
+            }
+            //    dd("Erreur dans la logique");
         }
     }
-   }
+
+    public function registerContactForm()
+    {
+
+        if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+            $error = [
+                "errorEmail" => "",
+                "successfulRegister" => "",
+            ];
+
+            $name = $_POST["name"];
+            $email = $_POST["email"];
+            $subject = $_POST["subject"];
+            $message = $_POST["message"];
+
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $error["errorEmail"] = "Merci de remplir un email valide";
+                return $error;
+            }
+
+            $name = htmlspecialchars($name);
+            $subject = htmlspecialchars($subject);
+            $message = htmlspecialchars($message);
+            $email = filter_var($email, FILTER_SANITIZE_EMAIL);
+
+            $query = $this->pdo->prepare("INSERT INTO dda_contact (name, email, subject, message) VALUES (:name, :email, :subject, :message)");
+            $success = $query->execute([
+                ":name" => $name,
+                ":email" => $email,
+                ":subject" => $subject,
+                ":message" => $message,
+            ]);
+
+            if ($success) {
+                $error["successfulRegister"] = "Votre message a bien été envoyé";
+                return $error;
+            }
+        }
+    }
 }

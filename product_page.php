@@ -1,5 +1,5 @@
 <?php
-require_once './includes/header.php';
+require_once './includes/phpheaders.php';
 require_once './src/ProductModel.php';
 require_once './src/StoreModel.php';
 require_once './src/CartModel.php';
@@ -9,142 +9,101 @@ $product = $productmodel->getOneProduct();
 $storemodel = new StoreModel();
 $store = $storemodel->getStoreByProduct();
 $error = $cartmodel->addToCart($product->getId());
-$products = $productmodel->getProducts();
 $sameCategoryProducts = $productmodel->getProductsOfSameCategory();
-// dump($sameCategoryProducts);
-
-// $title = 'Les tables'; // change selon l'id de la catégorie
-// $subTitle = "Trouvez votre bonheur en parcourant notre catalogue de tables d'occasion"; // change selon l'id de la catégorie
-// require_once './includes/title.php';
+require_once './includes/header.php';
 ?>
 
 <!-- Contenu de la page -->
-<section class="bg-white p-36">
-    <div class="container mx-auto">
+<section class="mb-auto container mx-auto py-10 px-8 md:p-16 lg:p-20 xl:py-26 xl:px-48">
 
-        <!-- Présentation produit -->
-        <div class="px-28">
-            <div class="flex flex-col justify-center space-y-10 mb-20">
-                <h2 class="text-center text-4xl text-darkblue font-semibold uppercase"><?= $product->getName() ?></h2>
-                <?php if (isset($error) && !empty($error["errorProduct_exist"])) { ?>
-                    <p class="text-red-500 text-center text-xl"><?= $error["errorProduct_exist"] ?></p>
-                <?php }  ?>
+    <!-- Présentation produit -->
+    <div class="lg:mb-10">
+        <div class="flex flex-col justify-center space-y-10 mb-10 md:mb-16">
+            <h2 class="text-center text-xl md:text-2xl md:leading-snug lg:text-3xl text-darkblue font-semibold uppercase"><?= $product->getName() ?></h2>
+            <?php if (isset($error) && !empty($error["errorProduct_exist"])) { ?>
+                <p class="text-red-500 text-center text-xl"><?= $error["errorProduct_exist"] ?></p>
+            <?php }  ?>
+        </div>
+        <img class="h-[200px] w-[350px] md:h-[250px] md:w-[400px] xl:h-[300px] xl:w-[450px] block m-auto" src="<?= $product->getImage() ?>" alt="<?= $product->getName() ?>">
+        <hr class="block mx-auto border-darkgrey border-t-0 border-b-2 my-14" />
+        <!-- Description produit -->
+        <div class="flex flex-col lg:flex-row space-y-6 lg:space-y-0 justify-between mb-16">
+            <div class="flex flex-col items-start lg:w-2/3">
+                <!-- Description -->
+                <p class="mb-10 text-base md:text-lg"><span class="font-bold text-lg md:text-xl mb-2">Description : </span><br /><?= $product->getDescription() ?></p>
+                <p class="text-base md:text-lg"> <span class="font-bold">Etat : </span><?= $product->getProduct_condition() ?></p>
+                <p class="text-base md:text-lg"> <span class="font-bold">Dimensions : </span><?= $product->getDimensions() ?></p>
+                <p class="text-base md:text-lg"> <span class="font-bold">Couleur : </span><?= $product->getColor() ?></p>
             </div>
-            <img class="h-[300px] w-[450px] block m-auto" src="<?= $product->getImage() ?>" alt="<?= $product->getName() ?>">
-            <hr class="block mx-auto border-darkgrey border-t-0 border-b-2 my-14" />
-            <!-- Description produit -->
-            <div class="flex justify-between mb-16">
-                <div class="flex flex-col items-start">
-                    <!-- Description -->
-                    <p class="mb-10 text-lg"><span class="font-bold text-xl mb-2">Description : </span><br /><?= $product->getDescription() ?></p>
-                    <p class="text-lg"> <span class="font-bold">Etat : </span><?= $product->getProduct_condition() ?></p>
-                    <p class="text-lg"> <span class="font-bold">Dimensions : </span><?= $product->getDimensions() ?></p>
-                    <p class="text-lg"> <span class="font-bold">Couleur : </span><?= $product->getColor() ?></p>
-                </div>
-
-                <p class="text-right text-orange text-3xl font-bold"><?= number_format($product->getPrice(), 2, ',', ' '); ?>€</p>
-            </div>
-
-            <div class="flex space-x-10 justify-center ">
-                <form action="" method="POST">
-                    <div class=" bg-orange hover-bg-darkgrey w-fit rounded-full py-2 px-6 mb-6 block m-auto">
-                        <button class="text-white text-center text-lg font-semibold tracking-wide">Ajouter au panier</button>
-                    </div>
-                </form>
-                <a id="storeLink" href="#" data-bs-toggle="modal">
-                    <div class=" bg-blue hover-bg-darkgrey w-fit rounded-full py-2 px-4 mb-14 block m-auto">
-                        <button href="#" class="text-white text-center text-lg font-semibold tracking-wide">Acheter en magasin</button>
-                    </div>
-                </a>
-            </div>
-            <hr class="block mx-auto border-darkgrey border-t-0 border-b-2 my-10 " />
+            <p class="text-left text-orange text-2xl md:text-3xl font-bold"><?= number_format($product->getPrice(), 2, ',', ' '); ?>€</p>
         </div>
 
+        <div class="flex flex-col lg:flex-row space-y-0 lg:space-x-10 justify-center ">
+            <form action="" method="POST">
+                <div class=" bg-orange hover-bg-darkgrey w-fit rounded-full py-2 px-6 mb-6 block m-auto">
+                    <button class="text-white text-center text-lg font-semibold tracking-wide">Ajouter au panier</button>
+                </div>
+            </form>
+            <a id="storeLink" href="#" data-bs-toggle="modal">
+                <div class=" bg-blue hover-bg-darkgrey w-fit rounded-full py-2 px-4 mb-14 block m-auto">
+                    <button href="#" class="text-white text-center text-lg font-semibold tracking-wide">Acheter en magasin</button>
+                </div>
+            </a>
+        </div>
+        <hr class="block mx-auto border-darkgrey border-t-0 border-b-2 mb-10" />
+    </div>
 
-        <h3 class="text-3xl font-semibold text-darkblue mb-10 text-center uppercase">Dans la même catégorie</h3>
-        <div class=" flex space-x-8 mx-auto justify-center items-center">
+    <?php if ($sameCategoryProducts) { ?>
+        <h3 class="text-xl md:text-2xl lg:text-3xl font-semibold text-darkblue mb-10 text-center uppercase">Dans la même catégorie</h3>
+        <div class="container mx-auto flex flex-col items-center space-y-6">
+            <div class="flex  justify-between mx-auto items-center space-x-6 lg:space-x-10 xl:space-x-14">
 
-            <button id="buttonprev" onclick="moveSlide(-1)" class="">
-                <i class="fas fa-regular fa-angle-left fa-4x text-orange hover-text-darkgrey"></i>
-            </button>
-            <!-- <button id="buttonprev" onclick="moveSlide(-1)" class="rounded-full bg-orange hover-bg-darkgrey py-3 px-5">
-                <i class="fas fa-regular fa-angle-left fa-2x"></i>
-            </button> -->
+                <button id="buttonprev" onclick="moveSlide(-1)" class="">
+                    <i class="fas fa-regular fa-angle-left text-orange hover-text-darkgrey text-3xl md:text-4xl lg:text-5xl xl:text-6xl"></i>
+                </button>
 
-            <div class="flex space-x-3 mx-auto items-center">
+                <!-- <div class="flex space-x-3 mx-auto items-center w-[220px]"> -->
                 <?php foreach ($sameCategoryProducts as $sameProduct) { ?>
-                    <div class="w-[200px] slide">
-                        <img class="w-full h-[150px]" src="<?= $sameProduct->getImage() ?>">
+                    <div class="slide w-[220px] md:w-[250px] lg:w-[280px] xl:w-[300px]">
+                        <img class="w-full h-[150px] md:h-[180px] lg:h-[210px] xl:h-[230px]" src="<?= $sameProduct->getImage() ?>">
                         <a class="" href="product_page.php?id=<?= $sameProduct->getId() ?>">
                             <div class="w-full px-5 py-3 bg-eggshell hover-bg-grey">
-                                <p class=" font-semibold truncate text-center"><?= $sameProduct->getName() ?></p>
-                                <p class=" font-semibold text-center"><?= number_format($sameProduct->getPrice(), 2, ',', ' '); ?>€</p>
+                                <p class=" font-semibold truncate text-center lg:text-lg"><?= $sameProduct->getName() ?></p>
+                                <p class=" font-semibold text-center lg:text-lg"><?= number_format($sameProduct->getPrice(), 2, ',', ' '); ?>€</p>
                             </div>
                         </a>
                     </div>
                 <?php } ?>
+                <!-- </div> -->
+
+                <button id="buttonnext" onclick="moveSlide(1)" class="">
+                    <i class="fas fa-regular fa-angle-right text-orange hover-text-darkgrey text-3xl md:text-4xl lg:text-5xl xl:text-6xl"></i>
+                </button>
             </div>
-            <!-- Next button -->
-
-            <!-- <button id="buttonnext" onclick="moveSlide(1)" class="rounded-full bg-blue hover-bg-darkgrey py-3 px-5">
-                <i class="fas fa-regular fa-angle-right fa-2x"></i>
-            </button> -->
-            <button id="buttonnext" onclick="moveSlide(1)" class="">
-                <i class="fas fa-regular fa-angle-right fa-4x text-orange hover-text-darkgrey"></i>
-            </button>
-
+            <!-- The dots -->
+            <div class="flex justify-center items-center space-x-5">
+                <?php for ($i = 0; $i < count($sameCategoryProducts); $i++) {
+                ?>
+                    <div class="dot w-3 h-3 md:w-4 md:h-4 rounded-full cursor-pointer" onclick="currentSlide(<?= $i + 1 ?>)"></div>
+                <?php } ?>
+            </div>
         </div>
-
-    </div>
+    <?php } ?>
 </section>
-<!-- <div class="container mx-auto p-6 bg-eggshell mt-20">
-    <h3 class="text-3xl font-semibold text-darkblue mb-10 text-center">Dans la même catégorie</h3>
-    <div class="flex items-center space-x-6">
-        <div class="slide flex items-center space-x-6">
-            <div class="bg-white p-5 rounded-lg">
-                <img class="h-[150px] w-[220px] mb-3" src=" https://media.istockphoto.com/photos/old-coffee-table-picture-id525954841?k=20&m=525954841&s=612x612&w=0&h=eVjoqEw6aoNbcwxmx6UbmHmiKUkzFhWU0JdSZXUCCqk=" alt="Table_basse_style_scandinave">
-                <p class="text-lg font-semibold text-center">Table basse style scandinave</p>
-                <p class="text-lg font-bold text-center">59,80€</p>
-            </div>
 
-            <div class="bg-white p-5 rounded-lg">
-                <img class="h-[150px] w-[220px] mb-3" src=" https://media.istockphoto.com/photos/stylish-bright-yellow-chair-chair-in-room-with-ears-and-armrest-picture-id1304184858?k=20&m=1304184858&s=612x612&w=0&h=EK2mwhWbCMMU8WxCoi9cb5BZS-bFzy8QpdYxLhclsE0=" alt="Table_basse_style_scandinave">
-                <p class="text-lg font-semibold text-center">Table basse style scandinave</p>
-                <p class="text-lg font-bold text-center">59,80€</p>
-            </div>
-
-            <div class="bg-white p-5 rounded-lg">
-                <img class="h-[150px] w-[220px] mb-3" src=" https://i.ibb.co/Wn754t5/buffet.jpg" alt="Table_basse_style_scandinave">
-                <p class="text-lg font-semibold text-center">Table basse style scandinave</p>
-                <p class="text-lg font-bold text-center">59,80€</p>
-            </div>
-
-            <div class="bg-white p-5 rounded-lg">
-                <img class="h-[150px] w-[220px] mb-3" src=" https://i.ibb.co/Wn754t5/buffet.jpg" alt="Table_basse_style_scandinave">
-                <p class="text-lg font-semibold text-center">Table basse style scandinave</p>
-                <p class="text-lg font-bold text-center">59,80€</p>
-            </div>
-        </div>
-
-        <button onclick="moveSlide(1)">
-            <i class="ml-3 fas fa-regular fa-chevron-right fa-3x text-orange"></i>
-        </button>
-    </div>
-</div> -->
 
 <!-- Modale produit disponible dans magasin -->
 <section id="storeModal" class="fixed hidden inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-    <div class="relative container mx-auto top-28 w-1/2 bg-white p-10">
-        <!-- <div class="container p-10"> -->
-        <button class="rounded p-2 bg-blue hover-bg-darkgrey float-right">
-            <i id="closeStoreModal" class="fa-solid fa-xmark fa-xl"></i>
+    <div class="relative container mx-auto top-28 w-3/4 lg:w-2/3 xl:w-1/2 p-5 lg:p-8 xl:p-10 bg-white">
+        <button class="rounded py-0 px-1 md:px-2 bg-blue hover-bg-darkgrey float-right">
+            <i id="closeStoreModal" class="fa-solid fa-xmark text-lg lg:text-xl xl:text-2xl"></i>
         </button>
-        <h3 class="text-darkblue text-2xl text-center mb-10"> Votre produit : <span class="font-semibold">"<?= $store["name"] ?>"</span> <br /> est disponible dans votre magasin :</h3>
+        <h3 class="text-darkblue text-base md:text-lg lg:text-xl xl:text-2xl text-center mb-10"> Votre produit : <span class="font-semibold">"<?= $store["name"] ?>"</span> <br /> est disponible dans votre magasin :</h3>
         <div class="flex flex-col gap-y-4">
-            <h3 class="text-orange text-2xl font-semibold uppercase"><?= $store["store_name"] ?></h3>
-            <p class="text-lg"> <span class="font-bold">Adresse : </span><?= $store["store_address"] . ", " . $store["store_postal_code"] . " " . $store["store_city"] ?></p>
-            <p class="text-lg"> <span class="font-bold">Téléphone : </span><?= $store["store_telephone"] ?></p>
-            <p class="text-lg"> <span class="font-bold">Horaires d'ouverture : </span>
+            <h3 class="text-orange text-lg md:text-xl lg:text-2xl font-semibold uppercase"><?= $store["store_name"] ?></h3>
+            <p class="text-sm lg:text-base xl:text-lg"> <span class="font-bold">Adresse : </span><?= $store["store_address"] . ", " . $store["store_postal_code"] . " " . $store["store_city"] ?></p>
+            <p class="text-sm lg:text-base xl:text-lg"> <span class="font-bold">Téléphone : </span><?= $store["store_telephone"] ?></p>
+            <p class="text-sm lg:text-base xl:text-lg"> <span class="font-bold">Horaires d'ouverture : </span>
                 <br />Du Lundi au Vendredi : de 10h à 18h
                 <br />Samedi : de 9h30 à 19h
                 <br />Dimanche : Fermé

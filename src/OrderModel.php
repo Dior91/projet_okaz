@@ -49,12 +49,8 @@ class OrderModel extends MainModel
                 return $error;
             }
 
-            // redirige l'utilisateur vers le panier s'il est vide (empêche l'insertion d'une ligne dans la table commande sans article) 
             $cartmodel = new CartModel();
             $cart = $cartmodel->getCartById();
-            if (!$cart) {
-                $this->redirect("cart.php");
-            }
 
             // insertion des données du panier, de livraison et de paiement dans la BDD
 
@@ -67,8 +63,8 @@ class OrderModel extends MainModel
 
             $cart = $cartmodel->getCart();
             $payment = $cartmodel->getFullPrice($cart);
-            $payment_amount = str_replace(' ', '', $payment);
-            $payment_amount = str_replace(',', '.', $payment);
+            $payment_reformated = str_replace(' ', '', $payment);
+            $payment_amount = str_replace(',', '.', $payment_reformated);
             $cart_id = $cartmodel->getCartById();
 
 
@@ -84,9 +80,6 @@ class OrderModel extends MainModel
 
             $this->redirect("recap.php");
         }
-        // else {
-        //     dump("Erreur de logique");
-        // }
     }
     public function getOrderInfoByCart()
     {
@@ -158,24 +151,22 @@ class OrderModel extends MainModel
 
         $cartmodel = new CartModel();
         $cart_id = $cartmodel->getCartById();
-        // dd($cart_id);
 
         $query = $this->pdo->query("SELECT * FROM dda_cart_products WHERE cart_id =" . $cart_id["id"]);
         $cart = $query->fetchAll(PDO::FETCH_ASSOC);
 
-        // dd($cart);
-        // $products_id = [];
+
         foreach ($cart as $product) {
             $query = $this->pdo->prepare("INSERT INTO dda_order_products (order_id, product_id) VALUES (:order_id, :product_id)");
             $query->execute([":order_id" => $orderId, "product_id" => $product["product_id"]]);
-            // $products_id[] = $product["product_id"];
         }
-        // On supprime les articles du panier et le panier ainsi que le produit (unique) dans la table produits
+        // On supprime les articles du panier et le panier ainsi que le produit (unique) dans la boutique
         $availability = 0;
         foreach ($cart as $product) {
             $query = $this->pdo->prepare("UPDATE dda_product SET availability = :availability WHERE id = " . $product["product_id"]);
-            $query = $this->pdo->query("DELETE FROM dda_cart_products WHERE product_id = " . $product["product_id"]);
             $query->execute([":availability" => $availability]);
+
+            $query = $this->pdo->query("DELETE FROM dda_cart_products WHERE product_id = " . $product["product_id"]);
         }
         $query = $this->pdo->query("DELETE FROM dda_cart WHERE id =" . $cart_id["id"]);
     }

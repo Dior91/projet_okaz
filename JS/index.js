@@ -5,15 +5,26 @@
 let slideIndex = 1;
 showSlide(slideIndex);
 
-// change slide with the prev/next button
-function moveSlide(moveStep) {
-  showSlide(slideIndex += moveStep);
+function plusSlides(n){
+  clearInterval(myTimer);
+  if (n < 0){
+    showSlide(slideIndex -= 1);
+  } else {
+   showSlide(slideIndex += 1); 
+  }
+  if (n === -1){
+    myTimer = setInterval(function(){plusSlides(n + 2)}, 4000);
+  } else {
+    myTimer = setInterval(function(){plusSlides(n + 1)}, 4000);
+  }
 }
 
-// change slide with the dots
-function currentSlide(n) {
+function currentSlide(n){
+  clearInterval(myTimer);
+  myTimer = setInterval(function(){plusSlides(n + 1)}, 4000);
   showSlide(slideIndex = n);
 }
+
 
 function showSlide(n) {
   let i;
@@ -42,3 +53,7 @@ function showSlide(n) {
   dots[slideIndex - 1].classList.add('bg-orange');
 }
 
+window.addEventListener("load",function() {
+  showSlide(slideIndex);
+  myTimer = setInterval(function(){plusSlides(1)}, 4000);
+})

@@ -9,7 +9,7 @@ class Product {
     private $dimensions;
     private $color;
     private $price;
-    private $quantity;
+    private $availability;
     private $id_dda_product_category;
     private $id_dda_stores;
 
@@ -162,21 +162,21 @@ class Product {
     }
 
     /**
-     * Get the value of quantity
+     * Get the value of availability
      */ 
-    public function getQuantity()
+    public function getAvailability()
     {
-        return $this->quantity;
+        return $this->availability;
     }
 
     /**
-     * Set the value of quantity
+     * Set the value of availability
      *
      * @return  self
      */ 
-    public function setQuantity($quantity)
+    public function setAvailability($availability)
     {
-        $this->quantity = $quantity;
+        $this->availability = $availability;
 
         return $this;
     }

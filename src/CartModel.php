@@ -17,7 +17,7 @@ class CartModel extends MainModel
         $query = $this->pdo->query("
         SELECT `id_dda_users`, `product_id`, `cart_id` FROM `dda_cart`
         JOIN `dda_cart_products` ON `dda_cart_products`.`cart_id` = `dda_cart`.`id`
-        WHERE `id_dda_users` = $userId;
+        WHERE `id_dda_users` = '$userId'
       ");
         $formatedCart = [];
         $cart = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -45,7 +45,7 @@ class CartModel extends MainModel
         ];
 
         $user = getLoggedUser();
-        $query = $this->pdo->query("SELECT * FROM dda_cart WHERE id_dda_users = " .  $user["id"]);
+        $query = $this->pdo->query("SELECT * FROM dda_cart WHERE id_dda_users = " . $user['id']);
         $cartId = $query->fetch(PDO::FETCH_ASSOC);
         if (!$cartId) {
             $data["errorNoCart"] =  "Le panier est vide";
